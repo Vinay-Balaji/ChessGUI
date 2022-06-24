@@ -40,3 +40,17 @@ class Display():
                     self.chessboard_display.blit(images_dictionary[self.chessboard.matrix[row][col]],
                                                  p.Rect(col * 45, row * 45, 45, 45))
                 tile_count += 1
+
+    def drawText(self, text):
+        """
+        Function to display text on the screen. Mainly used for
+        the checkmate at the end of the game.
+        :param text: text that will display on the screen
+        :return: text displayed on the screen
+        """
+        self.chessboard_display.fill((255, 255, 255))
+        font = p.font.SysFont("couriernew", 32, True, False)
+        # First part of board_display.blit represents the text object
+        # being displayed and the second part with the four numbers
+        # represents the location of where the text object will go.
+        self.chessboard_display.blit(font.render(text, False, p.Color('Blue')), (80, 160, 360, 360))

@@ -10,7 +10,7 @@ class Chessboard:
         self.player1_turn = True
         self.player2_turn = False
         self.all_attacks = []
-        # self.checkmate = False
+        self.checkmate = False
         self.king_paths = [(1, 1), (0, 1), (1, 0), (0, -1), (-1, 1), (-1, 0), (1, -1), (-1, -1)]
         self.bishop_paths = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
         self.rook_paths = [(1, 0), (0, 1), (0, -1), (-1, 0)]
@@ -62,6 +62,12 @@ class Chessboard:
         self.matrix[attack.row_tile1][attack.col_tile1] = "empty"
         self.matrix[attack.row_tile2][attack.col_tile2] = attack.attacking_chess_piece
         self.all_attacks.append(attack)
+
+        # Check if piece attacking is a pawn and if it is at the end of the chessboard.
+        # If it is, promote the pawn to a Queen
+        if (attack.attacking_chess_piece == 'WhitePawn' and attack.row_tile2 == 0) or (
+                attack.attacking_chess_piece == 'BlackPawn' and attack.row_tile2 == 7):
+            self.matrix[attack.row_tile2][attack.col_tile2] = attack.attacking_chess_piece[:5] + "Queen"
         self.swap_turns()
 
     def last_attack(self):
@@ -76,6 +82,37 @@ class Chessboard:
         self.matrix[last_attack.row_tile1][last_attack.col_tile1] = last_attack.attacking_chess_piece
         self.matrix[last_attack.row_tile2][last_attack.col_tile2] = last_attack.attacked_chess_piece
 
+    def check(self):
+        """
+        Checks if there is a white king or black king check on the chessboard
+        :return: True if there is a check, False otherwise
+        """
+        # Get positions of each king in terms of row and column on the
+        # chessboard matrix
+        white_king_pos = self.get_piece_pos("WhiteKing")
+        black_king_pos = self.get_piece_pos("BlackKing")
+
+        # To check for white check, switch to player 2 turn to get their
+        # attacks. For each of their attacks determine if any of their moves result in
+        # them possibly attacking the king
+        if self.player1_turn:
+            self.swap_turns()
+            player2_attack = self.get_attacks()
+            self.swap_turns()
+            for i in player2_attack:
+                if i.row_tile2 == white_king_pos[0] and i.col_tile2 == white_king_pos[1]:
+                    return True
+            return False
+
+        # Do the same as above for player 1 attacks to determine if black king is in check
+        if self.player2_turn:
+            self.swap_turns()
+            player1_attack = self.get_attacks()
+            self.swap_turns()
+            for i in player1_attack:
+                if i.row_tile2 == black_king_pos[0] and i.col_tile2 == black_king_pos[1]:
+                    return True
+            return False
 
     def get_allowed_attacks(self):
         """
@@ -93,7 +130,18 @@ class Chessboard:
         for i in range(len(attacks) - 1, -1, -1):
             self.perform_attack(attacks[i])
             self.swap_turns()
+            if self.check():
+                attacks.remove(attacks[i])
             self.last_attack()
+
+        # If there are no attacks left, check if the king is in check. If so,
+        # it is checkmate and the game is over. If not, there isn't a
+        # checkmate and the game continues
+        if len(attacks) == 0:
+            if self.check():
+                self.checkmate = True
+        else:
+            self.checkmate = False
         return attacks
 
     def get_attacks(self):

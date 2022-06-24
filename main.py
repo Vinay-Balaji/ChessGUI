@@ -20,29 +20,24 @@ tiles = []
 
 # Instantiating variables that will keep track of whether the game is over, whether a valid move is made,
 # or the number of times the user clicked on the board.
+end_game = False
 allowed_attack_performed = False
 max_selections = 2
 
 # Dictionary loaded in with chess piece images and assigned to a specific chess piece name.
 # Helps with naming where the specific pieces go on the chessboard matrix
-chess_piece_images = {"WhiteKing": p.image.load("images/WhiteKing.png"),
-                      "WhiteQueen": p.image.load("images/WhiteQueen.png"),
-                      "WhiteBishop": p.image.load("images/WhiteBishop.png"),
-                      "WhiteHorse": p.image.load("images/WhiteHorse.png"),
-                      "WhiteRook": p.image.load("images/WhiteRook.png"),
-                      "WhitePawn": p.image.load("images/WhitePawn.png"),
-                      "BlackKing": p.image.load("images/BlackKing.png"),
-                      "BlackQueen": p.image.load("images/BlackQueen.png"),
-                      "BlackBishop": p.image.load("images/BlackBishop.png"),
-                      "BlackHorse": p.image.load("images/BlackHorse.png"),
-                      "BlackRook": p.image.load("images/BlackRook.png"),
-                      "BlackPawn": p.image.load("images/BlackPawn.png")}
+chess_piece_images = {"WhiteKing": p.image.load("images/WhiteKing.png"), "WhiteQueen": p.image.load("images/WhiteQueen.png"),
+             "WhiteBishop": p.image.load("images/WhiteBishop.png"), "WhiteHorse": p.image.load("images/WhiteHorse.png"),
+             "WhiteRook": p.image.load("images/WhiteRook.png"), "WhitePawn": p.image.load("images/WhitePawn.png"),
+             "BlackKing": p.image.load("images/BlackKing.png"), "BlackQueen": p.image.load("images/BlackQueen.png"),
+             "BlackBishop": p.image.load("images/BlackBishop.png"), "BlackHorse": p.image.load("images/BlackHorse.png"),
+             "BlackRook": p.image.load("images/BlackRook.png"), "BlackPawn": p.image.load("images/BlackPawn.png")}
 
 
 def calc_mouse_pos(x_click, y_click):
     """
     Calculates the position of a mouse click relative to the GUI display and returns the approximate
-    location of a mouse click stored in a tuple. The position of the mouse click is relative to the
+    position of a mouse click stored in a tuple. The position of the mouse click is relative to the
     top left corner of the display.
     :param x_click: x-coordinate of the click
     :param y_click: y-coordinate of the click
@@ -71,30 +66,29 @@ while display_on:
     for event in p.event.get():
         if event.type == p.MOUSEBUTTONDOWN:
             # Loop continues until the game is over
-            mouse_pos = p.mouse.get_pos()
-            # This if statement tests if the user clicked on the same tile twice, else statement gets the row and
-            # col of the tile selected and appends it to a list
-            if curr_tile == (calc_mouse_pos(mouse_pos[1], mouse_pos[0])):
-                clear_selection(curr_tile, tiles)
-            else:
-                curr_tile = (calc_mouse_pos(mouse_pos[1], mouse_pos[0]))
-                tiles.append(curr_tile)
+            if end_game == False:
+                mouse_pos = p.mouse.get_pos()
+                # This if statement tests if the user clicked on the same tile twice, else statement gets the row and
+                # col of the tile selected and appends it to a list
+                if curr_tile == (calc_mouse_pos(mouse_pos[1], mouse_pos[0])):
+                    clear_selection(curr_tile, tiles)
+                else:
+                    curr_tile = (calc_mouse_pos(mouse_pos[1], mouse_pos[0]))
+                    tiles.append(curr_tile)
 
-            # If the user clicked twice conduct the move if the move is allowed and clear the selection.
-            # Lastly update the variable that detects if an allowed move was made
-            if len(tiles) == max_selections:
-                actual_move = attack.Attack(tiles[0], tiles[1], chessboard.matrix)
-                for i in range(len(allowed_attacks)):
-                    if actual_move.row_tile1 == allowed_attacks[i].row_tile1 and actual_move.row_tile2 == \
-                            allowed_attacks[
-                                i].row_tile2 and actual_move.col_tile1 == allowed_attacks[
-                        i].col_tile1 and actual_move.col_tile2 == \
-                            allowed_attacks[i].col_tile2:
-                        chessboard.perform_attack(allowed_attacks[i])
-                        clear_selection(curr_tile, tiles)
-                        allowed_attack_performed = True
-                    else:
-                        tiles = [curr_tile]
+                # If the user clicked twice conduct the move if the move is allowed and clear the selection.
+                # Lastly update the variable that detects if an allowed move was made
+                if len(tiles) == max_selections:
+                    actual_move = attack.Attack(tiles[0], tiles[1], chessboard.matrix)
+                    for i in range(len(allowed_attacks)):
+                        if actual_move.row_tile1 == allowed_attacks[i].row_tile1 and actual_move.row_tile2 == allowed_attacks[
+                            i].row_tile2 and actual_move.col_tile1 == allowed_attacks[i].col_tile1 and actual_move.col_tile2 == \
+                                allowed_attacks[i].col_tile2:
+                            chessboard.perform_attack(allowed_attacks[i])
+                            clear_selection(curr_tile, tiles)
+                            allowed_attack_performed = True
+                        else:
+                            tiles = [curr_tile]
 
         # General pygame application command which quits the application
         if event.type == p.QUIT:
@@ -105,4 +99,9 @@ while display_on:
     if allowed_attack_performed:
         allowed_attacks = chessboard.get_allowed_attacks()
         allowed_attack_performed = False
+
+    if chessboard.checkmate:
+        end_game = True
+        dis.drawText("Checkmate!")
+
     p.display.flip()
