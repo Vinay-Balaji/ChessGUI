@@ -1,7 +1,7 @@
 # Introduction
 For our Final Project in 2140, we developed an interactive two player chess game developed using pygame. The first main feature of the game is  regarding specific attacks that are implemented for each chess piece on the chessboard. In addition, the program will automatically detect checks and checkmates and will prohibit the player from performing an attack that would result in a check for their king. The game includes pawn promotion where the pawn is automatically promoted to a queen if it reaches the end of the board. Furthermore, our game contains an end screen that displays checkmate to the user when a player wins the game. All in all, our implementation of chess was developed using three main classes: display, attack, and chessboard. 
 
-## Link to Presentation: 
+## Link to Presentation (with demo video): 
 https://docs.google.com/presentation/d/12_V-IzZ7PjfYMzO2XGtOAvEqky2sOf7mfPdMd44XuCc/edit?usp=sharing
 
 ## Class Diagram
